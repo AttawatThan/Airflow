@@ -22,7 +22,7 @@ openmetadata-ingestion==1.6.5.1
 cryptography==42.0.0
 # openmetadata require #urllib3 < 2
 urllib3==1.26.20
-pytest==8.3.4
+pytest==8.3.5
 
 # For POC dbt
 # dbt-core==1.8.4
