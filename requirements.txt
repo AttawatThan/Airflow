@@ -23,6 +23,7 @@ cryptography==42.0.0
 # openmetadata require #urllib3 < 2
 urllib3==1.26.20
 pytest==8.3.5
+pydantic==2.11.3
 
 # For POC dbt
 # dbt-core==1.8.4
