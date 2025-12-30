@@ -72,6 +72,7 @@ jobs:
           context: .  # "." means look for the Dockerfile in the current directory.
           push: true  # Set to 'true' to push the image to the registry after building. 'false' would just test the build.
           tags: ${{ steps.meta.outputs.tags }}  # Use the tags generated in the previous step(step 4).
+          labels: ${{ steps.meta.outputs.labels }}  # Use the labels generated in the previous step(step 4).
           # Caching configuration to speed up future builds.
           cache-from: type=gha  # Read cache from GitHub Actions cache.
           cache-to: type=gha,mode=max # Write cache to GitHub Actions cache. (max mode caches all layers)
