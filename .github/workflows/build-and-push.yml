@@ -1,0 +1,77 @@
+# The name of the workflow as it will appear in the GitHub Actions.
+name: Build and Push Airflow Image
+
+# "on" defines the triggers: When to run the workflow.
+on:
+  # Trigger the workflow when a "push" event happens...
+  push:
+    # ... But only for the "main" branch. But can change or specific branches.
+    branches:
+      - main
+    # Only trigger if specific files are changed.
+    # This avoids unnecessary builds when unrelated files are changed. And prevents the buuld from running if you just update documentation etc.
+    paths:
+      - 'Dockerfile'
+      - 'requirements.txt'
+      - 'plugins/**' # The '**' means any file or folder inside 'plugins' folder
+      - '.github/workflows/build-and-push.yml'
+
+# "env" sets global environments variables for the workflow.
+env:
+  REGISTRY: ghcr.io # The address of the registry we are pushing to. 'ghcr.io' is GitHub Container Registry.
+  IMAGE_NAME: ${{ github.repository }}  # The name of the image. {{ github.repository }} automatically gets 'your-username/your-repo-name'.
+  AIRFLOW_VERSION: 2.10.2 # The version of Airflow. Must match the version with Dockerfile.
+
+# "jobs" groups all the tasks that need to be run.
+jobs:
+  # Define a job called "build-and-push".
+  build-and-push:
+    # This job will run on VM provieded by GitHub running the latest Ubuntu version.
+    runs-on: ubuntu-latest
+    
+    # Permission are required for the GITHUB_TOKEN to be able to push the image to GitHub Container Registry.
+    permissions:
+      contents: read  # Allow reading the repository contents
+      packages: write # Allow pushing packages to GitHub Container Registry
+    
+    # 'steps' is a sequence of tasks that will be executed as part of the job.
+    steps:
+      # Step 1: Check out your code onto the VM(runner).
+      - name: Checkout repository
+        uses: actions/checkout@v4 # Uses a pre-build action provided by GitHub to checkout code.
+      
+      # Step 2: Install Docker Buildx. This is a "plugin" for Docker that allows
+      # advanced features like caching (making builds faster) and multi-platform builds.
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      # Step 3: Log in to GitHub Container Registry (GHCR) using the GITHUB_TOKEN.
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }} # The GitHub username of the person or bot that triggered the workflow.
+          password: ${{ secrets.GITHUB_TOKEN }} # An automatically generated token to authenticate in the workflow.
+      
+      # Step 4: Making the tags and labels for the image. This step generates text strong for will name our image.
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta # An ID to reference this step later.
+        uses: docker/metadata-action@v5
+        with:
+          # The base name of the image.
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            # 1. Custom tag: "2.10.2-build.123"
+            # {{ github.run_number }} is a unique number that increases by 1 for every run of this workflow.
+            type=raw, value=${{ env.AIRFLOW_VERSION }}-build.${{ github.run_number }}
+      
+      # Step 5: Build and push the Docker image to GHCR.
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .  # "." means look for the Dockerfile in the current directory.
+          push: true  # Set to 'true' to push the image to the registry after building. 'false' would just test the build.
+          tags: ${{ steps.meta.outputs.tags }}  # Use the tags generated in the previous step(step 4).
+          # Caching configuration to speed up future builds.
+          cache-from: type=gha  # Read cache from GitHub Actions cache.
+          cache-to: type=gha,mode=max # Write cache to GitHub Actions cache. (max mode caches all layers)
