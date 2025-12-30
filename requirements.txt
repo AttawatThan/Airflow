@@ -22,7 +22,6 @@ Office365-REST-Python-Client==2.5.13
 cryptography==42.0.0
 # openmetadata require #urllib3 < 2
 urllib3==2.2.2
-pytest==8.3.5
 pydantic==2.11.3
 pandera==0.25.0
 great-expectations==1.5.4
