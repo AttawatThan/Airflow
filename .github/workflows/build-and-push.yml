@@ -64,6 +64,9 @@ jobs:
             # 1. Custom tag: "2.10.2-build.123"
             # {{ github.run_number }} is a unique number that increases by 1 for every run of this workflow.
             type=raw, value=${{ env.AIRFLOW_VERSION }}-build.${{ github.run_number }}
+            # 2. Latest tag: "latest"
+            # This is only added if the build is on the default branch (e.g., "main" or "master").
+            type=raw, value=latest, enable={{is_default_branch}}
       
       # Step 5: Build and push the Docker image to GHCR.
       - name: Build and push Docker image
