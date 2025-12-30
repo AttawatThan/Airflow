@@ -40,12 +40,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4 # Uses a pre-build action provided by GitHub to checkout code.
       
-      # Step 2: Install Docker Buildx. This is a "plugin" for Docker that allows
+      # Step 2: Set up QEMU (Quick Emulator) for building multi-platform Docker images.
+      # This allows the Intel-based runner to emulate ARM processors for the build.
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      
+      # Step 3: Install Docker Buildx. This is a "plugin" for Docker that allows
       # advanced features like caching (making builds faster) and multi-platform builds.
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
       
-      # Step 3: Log in to GitHub Container Registry (GHCR) using the GITHUB_TOKEN.
+      # Step 4: Log in to GitHub Container Registry (GHCR) using the GITHUB_TOKEN.
       - name: Log in to the Container registry
         uses: docker/login-action@v3
         with:
@@ -53,7 +58,7 @@ jobs:
           username: ${{ github.actor }} # The GitHub username of the person or bot that triggered the workflow.
           password: ${{ secrets.GITHUB_TOKEN }} # An automatically generated token to authenticate in the workflow.
       
-      # Step 4: Making the tags and labels for the image. This step generates text strong for will name our image.
+      # Step 5: Making the tags and labels for the image. This step generates text strong for will name our image.
       - name: Extract metadata (tags, labels) for Docker
         id: meta # An ID to reference this step later.
         uses: docker/metadata-action@v5
@@ -68,7 +73,7 @@ jobs:
             # This is only added if the build is on the default branch (e.g., "main" or "master").
             type=raw, value=latest, enable={{is_default_branch}}
       
-      # Step 5: Build and push the Docker image to GHCR.
+      # Step 6: Build and push the Docker image to GHCR.
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
@@ -76,6 +81,7 @@ jobs:
           push: true  # Set to 'true' to push the image to the registry after building. 'false' would just test the build.
           tags: ${{ steps.meta.outputs.tags }}  # Use the tags generated in the previous step(step 4).
           labels: ${{ steps.meta.outputs.labels }}  # Use the labels generated in the previous step(step 4).
+          platforms: linux/amd64,linux/arm64  # Build images for both AMD64 and ARM64 architectures.
           # Caching configuration to speed up future builds.
           cache-from: type=gha  # Read cache from GitHub Actions cache.
           cache-to: type=gha,mode=max # Write cache to GitHub Actions cache. (max mode caches all layers)
