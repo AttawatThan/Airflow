@@ -206,8 +206,13 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 
-# Ignore ETL core. It's a global function for ETL pipelines.
-etl_core/
-
 # Ignore Postgres DB volume
 postgres-db-volume/
+
+# Ignore Airflow folders
+dags/
+logs/
+config/
+plugins/
+jupyter/
+etl_core/
