@@ -44,44 +44,42 @@
 #
 # Feel free to modify this file to suit your needs.
 ---
-x-airflow-common:
-  &airflow-common
+x-airflow-common: &airflow-common
   # In order to add custom dependencies or upgrade provider packages you can use your extended image.
   # Comment the image line, place your Dockerfile in the directory where you placed the docker-compose.yaml
   # and uncomment the "build" line below, Then run `docker-compose build` to build the images.
   image: ${AIRFLOW_IMAGE_NAME}
   # build: .
-  environment:
-    &airflow-common-env
+  environment: &airflow-common-env
     AIRFLOW__CORE__EXECUTOR: LocalExecutor
     AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
-    AIRFLOW__CORE__FERNET_KEY: ''
-    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
-    AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
-    AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session'
+    AIRFLOW__CORE__FERNET_KEY: ""
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "true"
+    AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+    AIRFLOW__API__AUTH_BACKENDS: "airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session"
     # yamllint disable rule:line-length
     # Use simple http server on scheduler for health checks
     # See https://airflow.apache.org/docs/apache-airflow/stable/administration-and-deployment/logging-monitoring/check-health.html#scheduler-health-check-server
     # yamllint enable rule:line-length
-    AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: 'true'
+    AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: "true"
     # WARNING: Use _PIP_ADDITIONAL_REQUIREMENTS option ONLY for a quick checks
     # for other purpose (development, test and especially production usage) build/extend Airflow image.
     _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
     # Setting Timezone
-    AIRFLOW__CORE__DEFAULT_TIMEZONE: 'Asia/Bangkok'
+    AIRFLOW__CORE__DEFAULT_TIMEZONE: "Asia/Bangkok"
     # smtp Email Notification config
     AIRFLOW__EMAIL__EMAIL_BACKEND: airflow.providers.sendgrid.utils.emailer.send_email
     AIRFLOW__EMAIL__EMAIL_CONN_ID: sendgrid_smtp
     SENDGRID_MAIL_FROM: airflowlocal@xspringas.com
     # setting show_trigger_form_if_no_params
-    AIRFLOW__WEBSERVER__SHOW_TRIGGER_FORM_IF_NO_PARAMS: 'true'
+    AIRFLOW__WEBSERVER__SHOW_TRIGGER_FORM_IF_NO_PARAMS: "true"
     # setting enable testing connection on UI
-    AIRFLOW__CORE__TEST_CONNECTION: 'Enabled'
+    AIRFLOW__CORE__TEST_CONNECTION: "Enabled"
     # setting tracking file in plugins folder
-    AIRFLOW__WEBSERVER__RELOAD_ON_PLUGIN_CHANGE: 'true'
+    AIRFLOW__WEBSERVER__RELOAD_ON_PLUGIN_CHANGE: "true"
     # Add PYTHONPATH Environment variables
-    PYTHONPATH: '/opt/airflow/etl_core'
-    
+    PYTHONPATH: "/opt/airflow/etl_core"
+
     # The following line can be used to set a custom config file, stored in the local config folder
     # If you want to use it, outcomment it and replace airflow.cfg with the name of your config file
     # AIRFLOW_CONFIG: '/opt/airflow/config/airflow.cfg'
@@ -93,8 +91,7 @@ x-airflow-common:
     - ./jupyter:/opt/airflow/jupyter
     - ./etl_core:/opt/airflow/etl_core
   user: "${AIRFLOW_UID:-50000}:0"
-  depends_on:
-    &airflow-common-depends-on
+  depends_on: &airflow-common-depends-on
     postgres:
       condition: service_healthy
 
@@ -210,11 +207,11 @@ services:
     # yamllint enable rule:line-length
     environment:
       <<: *airflow-common-env
-      _AIRFLOW_DB_MIGRATE: 'true'
-      _AIRFLOW_WWW_USER_CREATE: 'true'
+      _AIRFLOW_DB_MIGRATE: "true"
+      _AIRFLOW_WWW_USER_CREATE: "true"
       _AIRFLOW_WWW_USER_USERNAME: ${_AIRFLOW_WWW_USER_USERNAME}
       _AIRFLOW_WWW_USER_PASSWORD: ${_AIRFLOW_WWW_USER_PASSWORD}
-      _PIP_ADDITIONAL_REQUIREMENTS: ''
+      _PIP_ADDITIONAL_REQUIREMENTS: ""
     user: "0:0"
     volumes:
       - .:/sources
