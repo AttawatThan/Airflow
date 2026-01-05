@@ -149,7 +149,6 @@ services:
       airflow-init:
         condition: service_completed_successfully
     networks:
-      # - airflow_kafka_network
       - airflow_local
 
   airflow-init:
@@ -233,8 +232,6 @@ services:
 
 # Add network for connect with other servicess
 networks:
-  airflow_kafka_network:
-    external: true
   airflow_local:
     name: airflow_local
     external: false
