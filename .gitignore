@@ -208,3 +208,6 @@ __marimo__/
 
 # Ignore ETL core. It's a global function for ETL pipelines.
 etl_core/
+
+# Ignore Postgres DB volume
+postgres-db-volume/
