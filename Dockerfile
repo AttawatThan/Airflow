@@ -4,16 +4,25 @@ ENV SHELL=/bin/bash
 
 USER root
 
-RUN apt-get update && apt-get install -y openjdk-17-jdk-headless \
-    && apt-get install -y openjdk-17-jre-headless \
-    && apt-get install -y gnupg \
+# Install system dependencies in a single layer and clean up
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        openjdk-17-jdk-headless \
+        openjdk-17-jre-headless \
+        gnupg \
+        git \
     && apt-get autoremove -yqq --purge \
-    && apt-get clean
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 USER airflow
 
+# Copy requirements first for better layer caching
 ADD requirements.txt .
-COPY plugins /opt/airflow/plugins
 
-RUN pip install --upgrade pip
-RUN pip install --no-cache-dir -r requirements.txt
+# Install Python dependencies in a single layer
+RUN pip install --upgrade pip --no-cache-dir \
+    && pip install --no-cache-dir -r requirements.txt
+
+# Copy plugins last as they may change more frequently
+COPY plugins /opt/airflow/plugins
