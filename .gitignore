@@ -216,3 +216,4 @@ config/
 plugins/
 jupyter/
 etl_core/
+pipelines/
