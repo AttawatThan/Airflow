@@ -31,3 +31,6 @@ bahttext==1.0.2
 fireblocks==11.2.0
 fireblocks_sdk==2.17.0
 pytest==9.0.2
+
+# Code quality
+ruff==0.15.1
