@@ -32,5 +32,8 @@ fireblocks==11.2.0
 fireblocks_sdk==2.17.0
 pytest==9.0.2
 
+# ETL pipelines
+polars==1.38.1
+
 # Code quality
 ruff==0.15.1
