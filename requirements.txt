@@ -37,3 +37,6 @@ polars==1.38.1
 
 # Code quality
 ruff==0.15.1
+
+# Remove on future versions of Airflow
+bahttext==1.0.2
